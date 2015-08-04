@@ -1,5 +1,6 @@
 package com.test;
 
+@Obfuscate(enabled=false)
 public class Example1 implements Example
 {
     private String message;

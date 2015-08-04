@@ -1,7 +1,9 @@
 package com.test.inside;
 
 import com.test.Example;
+import com.test.Obfuscate;
 
+@Obfuscate(enabled=false)
 public class Example2 implements Example
 {
     private String message;
