@@ -1,8 +1,8 @@
-#!sh -f
+#!/bin/sh -f
 
 CLASSPATH=progaurd-test-0.0.1-SNAPSHOT.jar
 
-for x in `ls spring-jars/*.jar` 
+for x in `ls ./spring-jars/*.jar` 
 do
     CLASSPATH=$x:$CLASSPATH
 done

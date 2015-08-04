@@ -20,6 +20,9 @@ public class Application
         e2.print();
         e3.print();
         
+        Example e4 = new Example4();
+        e4.print();
+        
         context.close();
         
     }
