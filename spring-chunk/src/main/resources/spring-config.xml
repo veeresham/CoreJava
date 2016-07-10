@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/batch  http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- Transaction Manager -->
+	<bean id="transactionManager"
+		class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+
+	<!-- jobRepository Declaration -->
+	<bean id="jobRepository"
+		class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+
+	<!-- jobLauncher Declaration -->
+	<bean id="jobLauncher"
+		class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+	</bean>
+
+	<!-- Readers -->
+	<bean id="sucessTestReader" class="com.test.batch.TestReader">
+		<property name="count" value="10" />
+	</bean>
+
+	<bean id="failedTestReader" class="com.test.batch.TestReader">
+		<property name="raiseError" value="true" />
+	</bean>
+
+	<!-- Processor Bean Declaration -->
+	<bean id="testProcessor" class="com.test.batch.TestProcessor" />
+
+	<!-- Writer Bean Declaration -->
+	<bean id="testWriter" class="com.test.batch.TestWriter" />
+
+	<!-- Tasklet -->
+	<bean id="testTasklet" class="com.test.batch.TestTasklet">
+		<property name="fail" value="false" />
+	</bean>
+	<bean id="failTasklet" class="com.test.batch.TestTasklet">
+		<property name="fail" value="true" />
+	</bean>
+
+	<!-- Batch Job Declarations -->
+	<batch:job id="sucessJob">
+		<batch:step id="firstStep" next="secondStep">
+			<batch:tasklet>
+				<batch:chunk reader="sucessTestReader" processor="testProcessor"
+					writer="testWriter" commit-interval="5" />
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="secondStep">
+			<batch:tasklet>
+				<batch:chunk reader="sucessTestReader" processor="testProcessor"
+					writer="testWriter" commit-interval="2" />
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<batch:job id="anotherJob">
+		<batch:step id="failStep">
+			<batch:tasklet>
+				<batch:chunk reader="failedTestReader" processor="testProcessor"
+					writer="testWriter" commit-interval="2" />
+			</batch:tasklet>
+			<batch:next on="*" to="sucessStep" />
+			<batch:next on="FAILED" to="failedStep" />
+		</batch:step>
+		<batch:step id="sucessStep">
+			<batch:tasklet ref="testTasklet" />
+		</batch:step>
+		<batch:step id="failedStep">
+			<batch:tasklet ref="failTasklet" />
+		</batch:step>
+	</batch:job>
+</beans>
